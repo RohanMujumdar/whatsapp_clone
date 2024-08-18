@@ -4,7 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import Routing_app from './POC/Protected_Routing/Routing_app.jsx'
-import User from './POC/useEffect/User.jsx'
+import User from './Components/useEffect/User.jsx'
 import Login from './Components/Login.jsx'
 
 

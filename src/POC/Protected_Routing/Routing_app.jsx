@@ -7,7 +7,7 @@ import Protected_Route from './Protected_Route'
 import Chat from './Chat'
 
 function Routing_app() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   return (
     <>
       <h1>Routing_App</h1>
@@ -21,7 +21,7 @@ function Routing_app() {
             <Chat setIsLoggedIn={setIsLoggedIn}></Chat>
         </Protected_Route>}></Route>
 
-        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn}></Login>}></Route>
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}></Login>}></Route>
 
       </Routes>
     </>

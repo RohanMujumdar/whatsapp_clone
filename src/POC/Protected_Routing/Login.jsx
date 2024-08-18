@@ -10,16 +10,22 @@ import { auth } from '../../../firebase.config';
 
 function Login(props) {
 
+    const isLoggedIn=props.isLoggedIn
     const setIsLoggedIn=props.setIsLoggedIn
     const navigate=useNavigate()
-    const handleLogin= async()=>{
+
+    if(isLoggedIn)
+    {
+      navigate("/")
+      return
+    }
+    const handleLogin = async()=>{
 
         //auth-step-4
-        const result= await signInWithPopup(auth, new GoogleAuthProvider)
+        const result = await signInWithPopup(auth, new GoogleAuthProvider)
         console.log(result)
         setIsLoggedIn(true);
         navigate("/")
-
     }
   return (
     <div>
