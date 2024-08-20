@@ -14,7 +14,6 @@ function App() {
   return (
     <>
       <Routes>
-
         <Route path="/" element={<Protected_Route isLoggedIn={isLoggedIn}>
             <Home setIsLoggedIn={setIsLoggedIn}></Home>
         </Protected_Route>}></Route>
@@ -24,6 +23,7 @@ function App() {
         </Protected_Route>}></Route>
 
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}></Login>}></Route>
+
         <Route path="*" element={<PageNotFound></PageNotFound>}></Route>
       </Routes>
     </>

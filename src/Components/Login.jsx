@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth ,db} from "../../firebase.config";
 import {doc,setDoc} from "firebase/firestore"
+import { useAuth } from "./AuthContext";
 
 async function createUser(authData)
 {
@@ -22,10 +23,12 @@ async function createUser(authData)
         profile: photoURL,
         name: displayName
     })
-    console.log("User data is added")
+    console.log("User data is added successfully")
 }
+
 function Login(props)
 {
+    const { setUserData } = useAuth()
     const isLoggedIn=props.isLoggedIn
     const setIsLoggedIn=props.setIsLoggedIn
     const navigate=useNavigate()
@@ -41,6 +44,16 @@ function Login(props)
         const result = await signInWithPopup(auth, new GoogleAuthProvider)
         console.log(result)
         await createUser(result)
+
+        const userObject=result.user
+        const {uid, photoURL, displayName, email} = userObject;
+        
+        setUserData({
+            id:uid,
+            profile:photoURL,
+            email:email,
+            name:displayName
+        })
         setIsLoggedIn(true);
         navigate("/")
     }
