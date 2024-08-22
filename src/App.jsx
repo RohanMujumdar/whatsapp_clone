@@ -14,15 +14,15 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Protected_Route isLoggedIn={isLoggedIn}>
-            <Home setIsLoggedIn={setIsLoggedIn}></Home>
+        <Route path="/" element={<Protected_Route>
+            <Home></Home>
         </Protected_Route>}></Route>
 
-        <Route path="/chat/:uniqueId" element={<Protected_Route isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}>
-            <Chat setIsLoggedIn={setIsLoggedIn}></Chat>
+        <Route path="/:chatId" element={<Protected_Route>
+            <Home></Home>
         </Protected_Route>}></Route>
 
-        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}></Login>}></Route>
+        <Route path="/login" element={<Login></Login>}></Route>
 
         <Route path="*" element={<PageNotFound></PageNotFound>}></Route>
       </Routes>

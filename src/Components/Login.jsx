@@ -26,17 +26,24 @@ async function createUser(authData)
     console.log("User data is added successfully")
 }
 
-function Login(props)
+function Login()
 {
-    const { setUserData } = useAuth()
-    const isLoggedIn=props.isLoggedIn
-    const setIsLoggedIn=props.setIsLoggedIn
+    const { setIsLoggedIn }=useAuth()
+    const { setUserData,userData } =useAuth()
+    const { isLoggedIn }=useAuth()
+   
     const navigate=useNavigate()
+    
+    if(userData!=null)
+    {
+        navigate("/")
+        return <></>
+    }
     
     if(isLoggedIn)
     {
         navigate("/")
-        return
+        return <></>
     }
 
     const handleLogin = async()=>{
@@ -54,6 +61,7 @@ function Login(props)
             email:email,
             name:displayName
         })
+
         setIsLoggedIn(true);
         navigate("/")
     }

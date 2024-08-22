@@ -5,9 +5,11 @@ import { auth } from '../../firebase.config'
 import { storage } from '../../firebase.config'
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import ChatPanel from './ChatPanel'
+import { useAuth } from './AuthContext'
+import Chat from './Chat'
 
-function Home(props) {
-    const setIsLoggedIn=props.setIsLoggedIn
+function Home() {
+    const { setIsLoggedIn }=useAuth()
     const navigate=useNavigate()
     const handleLogout=async ()=>{
 
@@ -44,7 +46,7 @@ function Home(props) {
 
     //   function finishedCB(){
     //     console.log("successfully file uploaded")
-    //     getDownloadURL(uploadTask.snapshot.ref).then(function (url){
+    //     getDownloadURL(uploadTask.snapshot.ref).then(function(url){
     //       console.log("url: ",url)
     //     })
     //   }
@@ -54,11 +56,14 @@ function Home(props) {
       <>
         <div>
             <h2>Home</h2>
-            {/* <input type="file" accept="image/png image/jpeg image/webp" onChange={handleChange}></input>
-            <button onClick={handleLogout}>Logout</button> */}
+            {/* <input type="file" accept="image/png image/jpeg image/webp" onChange={handleChange}></input> */}
+            <button onClick={handleLogout}>Logout</button> 
         </div>
 
         <ChatPanel/>
+
+        {/* Empty Chat or Individual </Chat> */}
+        <Chat />
         {/* <div>Chat Panel</div>
         <div>Empty Chat</div>
         <div>Individual Chat</div> */}

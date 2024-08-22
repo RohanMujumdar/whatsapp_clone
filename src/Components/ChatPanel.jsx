@@ -4,24 +4,23 @@ import { db } from '../../firebase.config';
 import { collection, getDocs } from 'firebase/firestore';
 import { ArrowLeft, CircleFadingPlusIcon, MessageSquare, UserRoundIcon } from 'lucide-react';
 import Profile from './Profile';
+import UserCard from './userCard';
 function ChatPanel() {
 
     const [isLoading, setLoading]=useState(true)
     const [users, setUser] = useState([]);
     const [profile, showProfile]=useState(false)
 
-    
 
-   
     const onBack=()=>{showProfile(false)}
     
     useEffect(()=>{
         const getUsers=async() =>{
 
             //data should be brought from which collection from firebase
-            const data = await getDocs(collection(db, 'users'));
-            console.log(data.docs.length)
-            const arrayOfUser=data.docs.map((docs)=>{return {userData: docs.data(), id: docs.id} })
+            const snapShot = await getDocs(collection(db, 'users'));
+            // console.log(snapShot.docs.length)
+            const arrayOfUser=snapShot.docs.map((docs)=>{return {userData: docs.data(), id: docs.id} })
             console.log(arrayOfUser)
 
             // arrayOfUser.map(doc=>(
@@ -76,12 +75,8 @@ function ChatPanel() {
                 {/* Chat List */}
                 {
                     isLoading ? <div>....Loading</div>: <div className='flex flex-col gap-3'> 
-                                                            {users.map(userObject=>(
-                                                                <div key={userObject.uid} className='flex gap-3 border-2'>
-                                                                    <img src={userObject.userData.profile} className='rounded-full h-10 w-10'></img>
-                                                                    <h2>{userObject.userData.name}</h2>
-                                                                </div>
-                                                            ))}
+                                                            {users.map(userObject=> <UserCard userObject={userObject} />
+                                                            )}
                                                         </div>
                 }
                 
