@@ -52,10 +52,9 @@ function ChatPanel() {
         )
     }
 
-    if(profile == false)
-        {
+    
         return (
-            <>
+            <div className='bg-white w-[30vw]'> 
                 {/* //Top Bar */}
                 <div className='bg-gray-300 py-2 px-4 border-r flex justify-between items-center gap-2'>
                     <button onClick={()=>{showProfile(true)}}>
@@ -74,16 +73,16 @@ function ChatPanel() {
 
                 {/* Chat List */}
                 {
-                    isLoading ? <div>....Loading</div>: <div className='flex flex-col gap-3'> 
-                                                            {users.map(userObject=> <UserCard userObject={userObject} />
+                    isLoading ? <div>....Loading</div>: <div className='flex flex-col gap-3 '> 
+                                                            {users.map(userObject=> <UserCard userObject={userObject} key={userObject.id}/>
                                                             )}
                                                         </div>
                 }
                 
                 
-            </>
+            </div>
         )
     }
-}
+
 
 export default ChatPanel

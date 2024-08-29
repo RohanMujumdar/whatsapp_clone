@@ -6,7 +6,8 @@ import { storage } from '../../firebase.config'
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import ChatPanel from './ChatPanel'
 import { useAuth } from './AuthContext'
-import Chat from './Chat'
+
+import ChatWindow from './ChatWindow'
 
 function Home() {
     const { setIsLoggedIn }=useAuth()
@@ -53,21 +54,18 @@ function Home() {
 
     // }
     return (
-      <>
-        <div>
-            <h2>Home</h2>
-            {/* <input type="file" accept="image/png image/jpeg image/webp" onChange={handleChange}></input> */}
-            <button onClick={handleLogout}>Logout</button> 
-        </div>
+      <main className='w-full h-screen bg-[#E3E1DB]'>
+            <div className='bg-[#eff2f5] w-full h-full shadow-md flex'>
+                {/* <input type="file" accept="image/png image/jpeg image/webp" onChange={handleChange}></input> */}
+                {/* <button onClick={handleLogout}>Logout</button>  */}
+                <ChatPanel/>
 
-        <ChatPanel/>
+                {/* Empty Chat or Individual </Chat> */}
+                <ChatWindow />
+            </div>
 
-        {/* Empty Chat or Individual </Chat> */}
-        <Chat />
-        {/* <div>Chat Panel</div>
-        <div>Empty Chat</div>
-        <div>Individual Chat</div> */}
-        </>
+            
+        </main>
     )
 }
 
