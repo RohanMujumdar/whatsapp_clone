@@ -55,7 +55,7 @@ function Home() {
     // }
     return (
       <main className='w-full h-screen bg-[#E3E1DB]'>
-            <div className='bg-[#eff2f5] w-full h-full shadow-md flex'>
+            <div className='bg-backGround w-full h-full shadow-md flex'>
                 {/* <input type="file" accept="image/png image/jpeg image/webp" onChange={handleChange}></input> */}
                 {/* <button onClick={handleLogout}>Logout</button>  */}
                 <ChatPanel/>
@@ -63,8 +63,6 @@ function Home() {
                 {/* Empty Chat or Individual </Chat> */}
                 <ChatWindow />
             </div>
-
-            
         </main>
     )
 }

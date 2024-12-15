@@ -16,7 +16,7 @@ async function createUser(authData)
     // const email=objectData.email
 
     const {uid, photoURL, displayName, email} = objectData;
-    console.log("Details:= ", uid," ",photoURL," ",displayName," ",email)
+    console.log("Here are the Details:= ", uid," ",photoURL," ",displayName," ",email)
 
     await setDoc(doc(db,"users",uid),{
         email: email,
@@ -28,47 +28,18 @@ async function createUser(authData)
 
 function Login()
 {
-    const { setIsLoggedIn }=useAuth()
-    const { setUserData,userData } =useAuth()
-    const { isLoggedIn }=useAuth()
-   
     const navigate=useNavigate()
-    
-    if(userData!=null)
-    {
-        navigate("/")
-        return <></>
-    }
-    
-    if(isLoggedIn)
-    {
-        navigate("/")
-        return <></>
-    }
-
     const handleLogin = async()=>{
         //auth-step-4
         const result = await signInWithPopup(auth, new GoogleAuthProvider)
-        console.log(result)
+        console.log("Result is here",result)
         await createUser(result)
-
-        const userObject=result.user
-        const {uid, photoURL, displayName, email} = userObject;
-        
-        setUserData({
-            id:uid,
-            profile:photoURL,
-            email:email,
-            name:displayName
-        })
-
-        setIsLoggedIn(true);
         navigate("/")
     }
 
     return ( 
     <>
-        <div className="h-[220px] bg-[#11d1a7]">
+        <div className="h-[220px] bg-primary">
             <div className="flex ml-[200px] pt-10 items-center gap-[0px]">
                 <img src="../images/logo.jpg" alt="Logo" className="h-12" />
                 <div className="text-white font-semibold">WHATSAPP</div>
@@ -79,7 +50,7 @@ function Login()
                 <Fingerprint className="h-20 w-20 text-[#10c8a0]" strokeWidth={1.5}/>
                 <div className="font-bold text-2xl leading-8">Sign In</div>
                 <div className="text-gray-500 font-bold">Sign In with Google account to get started</div>
-                <button className="flex gap-2 items-center bg-[#11d1a7] p-3 mt-7 text-white rounded-lg shadow-md transition-transform transform hover:scale-105 hover:bg-[#0a9d87] focus:outline-none focus:ring-2 focus:ring-[#11d1a7] focus:ring-opacity-50" 
+                <button className="flex gap-2 items-center bg-primary p-3 mt-7 text-white rounded-lg shadow-md transition-transform transform hover:scale-105 hover:bg-primaryDense focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" 
                     onClick={handleLogin}>
                         Sign In with Google <LogIn />
                 </button>
