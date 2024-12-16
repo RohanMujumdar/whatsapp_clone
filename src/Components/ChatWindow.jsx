@@ -1,25 +1,70 @@
-import { doc, getDoc } from 'firebase/firestore'
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
 import { EllipsisVertical, MessageSquare, MessageSquareText, Mic, Mic2Icon, PhoneCall, PhoneCallIcon, PlusIcon, SendIcon, VideoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { db } from '../../firebase.config'
+import { useAuth } from './AuthContext'
 function ChatWindow(){
 
+  const {userData}=useAuth()   
   const params=useParams()
   const [input, setInput]=useState("")
   const [currentUser, setCurrentUser]=useState(null)
+  const [msgList, setMsgList]=useState([])    
+
+  const receiverId=params?.chatid
+
+
+  const chatId=userData?.id>receiverId?
+      `${userData.id}-${receiverId}`
+    : `${receiverId}-${userData?.id}`
+
+  
+  const handleMessage=async ()=>{
+
+    if(input)
+    {
+      setInput("")
+    }
     
-  const handleMessage=()=>{
-    setInput("")
+    const date=new Date()
+    const timeStamp=date.toLocaleString("en-US",{
+      hour:"numeric",
+      minute:"numeric",
+      hour12:true,
+    })
+
+    if(msgList?.length===0)
+    {
+      await setDoc(doc(db, 'user-chats', chatId),{
+        chatId: chatId,
+        messages:[
+          {
+            text: input,
+            time: timeStamp,
+            sender: userData.id,
+            receiver: receiverId
+          }
+        ]
+      })
+    }
+    else{
+      await updateDoc(doc(db, 'user-chats', chatId),{
+        chatId: chatId,
+        messages: arrayUnion({
+          text: input,
+          time: timeStamp,
+          sender: userData.id,
+          receiver: receiverId
+        })
+      })
+    }
   }
 
 
   useEffect(()=>{
     const fetchUserDetails=async()=>{
-      if(params.chatId)
-      {
-        const uId=params.chatId
-        const userDocRef = doc(db, 'users', uId); // Reference to the user's document.
+        const userDocRef = doc(db, 'users', receiverId); // Reference to the user's document.
         const userDocSnap = await getDoc(userDocRef); // Fetch the user's document.
         console.log("UserDocSnapData", userDocSnap.data())
         if(userDocSnap.exists())
@@ -30,13 +75,20 @@ function ChatWindow(){
         {
           console.log("No user Found")  
         }
-      }
     }
     fetchUserDetails()
-  }, [params.chatId])
+    const msgUnsubscribe=onSnapshot(doc(db,'user-chats',chatId),(doc)=>{
+      setMsgList(doc.data()?.messages || [])
+    })
+
+    return ()=>{
+      msgUnsubscribe()
+    }
+
+  }, [receiverId])
 
 
-  if(!params.chatId)
+  if(!receiverId)
   {
     return(
       <section className='w-[70%] h-full flex flex-col gap-4 items-center justify-center'>
@@ -63,7 +115,15 @@ function ChatWindow(){
             alt="profile picture"
             className='w-9 h-9 rounded-full object cover'
           />
+
+          <div>
           <h2>{currentUser?.name}</h2>
+          {currentUser?.lastSeen && (
+            <p className='text-xs text-neutral-400'>
+              last seen at {currentUser?.lastSeen}
+            </p>
+          )}
+          </div>
 
         <div className='ml-auto flex justify-center items-center gap-3 cursor-pointer'>
           <PhoneCallIcon />
@@ -73,7 +133,38 @@ function ChatWindow(){
       </div>
 
       {/* Message box */}
-      <div className='flex grow flex flex-col gap-12 bg-chat-bg'></div>
+      {/* <div className='flex grow flex flex-col gap-12 bg-chat-bg'>
+        {msgList?.map((m,index)=>{
+          return(
+          <div
+            key={index}
+            data-sender={m.sender === userData.id}
+            className='bg-white w-fit rounded-md p-2 shadow-sm max-w-[400px] break-words data-[sender=true]:ml-auto data-[sender=true]:bg-primary-light'
+        >
+          <p>{m?.text}</p>
+          <p className='text-xs text-neutral-500 text-end'>
+            {m?.time}
+          </p>
+          </div>
+          )
+          })}
+
+      </div> */}
+
+      <div className='flex grow flex-col gap-12 bg-chat-bg px-4 py-2 overflow-y-auto'>
+        {msgList?.map((m, index) => {
+          return (
+            <div
+              key={index}
+              data-sender={m.sender === userData.id}
+              className='bg-white w-fit rounded-md p-2 shadow-sm max-w-[400px] break-words data-[sender=true]:ml-auto data-[sender=true]:bg-primary-light'
+            >
+              <p>{m?.text}</p>
+              <p className='text-xs text-neutral-500 text-end'>{m?.time}</p>
+            </div>
+          );
+        })}
+      </div>
 
       {/* chat input */}
       <div className='bg-backGround py-2 px-4 flex items-center gap-2 shadow-sm'>

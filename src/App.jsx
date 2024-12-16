@@ -18,7 +18,7 @@ function App() {
             <Home></Home>
         </Protected_Route>}></Route>
 
-        <Route path="/:chatId" element={<Protected_Route>
+        <Route path="/:chatid" element={<Protected_Route>
             <Home></Home>
         </Protected_Route>}></Route>
 

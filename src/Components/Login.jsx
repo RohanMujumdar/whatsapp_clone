@@ -17,11 +17,18 @@ async function createUser(authData)
 
     const {uid, photoURL, displayName, email} = objectData;
     console.log("Here are the Details:= ", uid," ",photoURL," ",displayName," ",email)
+    const date=new Date()
+    const timeStamp=date.toLocaleString("en-US",{
+      hour:"numeric",
+      minute:"numeric",
+      hour12:true,
+    })
 
     await setDoc(doc(db,"users",uid),{
         email: email,
         profile: photoURL,
-        name: displayName
+        name: displayName,
+        lastSeen: timeStamp
     })
     console.log("User data is added successfully")
 }
@@ -50,7 +57,7 @@ function Login()
                 <Fingerprint className="h-20 w-20 text-[#10c8a0]" strokeWidth={1.5}/>
                 <div className="font-bold text-2xl leading-8">Sign In</div>
                 <div className="text-gray-500 font-bold">Sign In with Google account to get started</div>
-                <button className="flex gap-2 items-center bg-primary p-3 mt-7 text-white rounded-lg shadow-md transition-transform transform hover:scale-105 hover:bg-primaryDense focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" 
+                <button className="flex gap-2 items-center bg-primary p-3 mt-7 text-white rounded-lg shadow-md transition-transform transform hover:scale-105 hover:bg-primary-dense focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50" 
                     onClick={handleLogin}>
                         Sign In with Google <LogIn />
                 </button>
