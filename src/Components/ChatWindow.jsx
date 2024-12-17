@@ -151,7 +151,7 @@ function ChatWindow(){
 
       </div> */}
 
-      <div className='flex grow flex-col gap-12 bg-chat-bg px-4 py-2 overflow-y-auto'>
+      <div className='flex grow flex-col gap-12 bg-chat-bg px-4 py-2 overflow-y-scroll'>
         {msgList?.map((m, index) => {
           return (
             <div

@@ -54,14 +54,18 @@ function Home() {
 
     // }
     return (
-      <main className='w-full h-screen bg-[#E3E1DB]'>
-            <div className='bg-backGround w-full h-full shadow-md flex'>
-                {/* <input type="file" accept="image/png image/jpeg image/webp" onChange={handleChange}></input> */}
-                {/* <button onClick={handleLogout}>Logout</button>  */}
-                <ChatPanel/>
+      <main className='relative w-full h-screen bg-[#E3E1DB] '>
 
-                {/* Empty Chat or Individual </Chat> */}
-                <ChatWindow />
+        <div className='absolute top-0 h-[130px] bg-primary w-full' />
+            <div className='h-screen absolute w-full p-5'>
+                <div className='bg-backGround w-full h-full shadow-md flex '>
+                    {/* <input type="file" accept="image/png image/jpeg image/webp" onChange={handleChange}></input> */}
+                    {/* <button onClick={handleLogout}>Logout</button>  */}
+                    <ChatPanel/>
+
+                    {/* Empty Chat or Individual </Chat> */}
+                    <ChatWindow />
+                </div>
             </div>
         </main>
     )

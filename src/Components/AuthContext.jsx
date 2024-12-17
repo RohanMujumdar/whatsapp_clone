@@ -66,6 +66,8 @@ function AuthWrapper({children}) {
         hour:"numeric",
         minute:"numeric",
         hour12:true,
+        day:"numeric",
+        month:"short"
       })
 
       await updateDoc(doc(db,"users",user.uid),{

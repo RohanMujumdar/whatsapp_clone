@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react';
 import { db } from '../../firebase.config';
 import { collection, getDocs } from 'firebase/firestore';
-import { ArrowLeft, CircleFadingPlusIcon, MessageSquare, UserRoundIcon } from 'lucide-react';
+import { ArrowLeft, CircleFadingPlusIcon, Loader2Icon, MessageSquare, SearchIcon, UserRoundIcon } from 'lucide-react';
 import Profile from './Profile';
 import UserCard from './userCard';
 import { useAuth } from './AuthContext';
@@ -11,10 +11,14 @@ function ChatPanel() {
     const [isLoading, setLoading]=useState(true)
     const [users, setUser] = useState([]);
     const [profile, showProfile]=useState(false)
+    const [searchQuery, setSearchQuery]=useState("")
 
     const {userData}=useAuth()
 
-
+    let filterUsers=users
+    if(searchQuery){
+        filterUsers=users.filter((user)=>user.userData.name?.toLowerCase()?.includes(searchQuery?.toLowerCase()))
+    }
     const onBack=()=>{showProfile(false)}
     
     useEffect(()=>{
@@ -57,9 +61,8 @@ function ChatPanel() {
 
     const currentUser = users.find((user) => user.userData?.email === userData?.email);
 
-    
         return (
-            <div className='bg-white w-[30vw]'> 
+            <div className='bg-white w-[30vw] min-w-[350px]'> 
                 {/* //Top Bar */}
                 <div className='bg-backGround py-2 px-4 border-r flex justify-between items-center gap-2'>
                     <button onClick={()=>{showProfile(true)}}>
@@ -81,13 +84,23 @@ function ChatPanel() {
 
                 {/* Chat List */}
                 {
-                    isLoading ? <div>....Loading</div>: <div className='flex flex-col gap-3 '> 
-                                                            {users.map(userObject=> <UserCard userObject={userObject} key={userObject.id}/>
-                                                            )}
-                                                        </div>
+                    isLoading ? <div className='h-full w-full flex justify-center items-center '><Loader2Icon className='w-10 h-10 animate-spin'/></div>: 
+    
+                        <div className='bg-white py-2 px-3'>
+                            <div className='bg-backGround flex items-center gap-4 px-3 py-2 rounded-lg'>
+                                <SearchIcon className='w-4 h-4'/>
+                                <input
+                                    className='bg-backGround focus-within:outline-none'
+                                    placeholder='Search'
+                                    value={searchQuery}
+                                    onChange={(e)=>setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <div className='divide-y py-4 h-full max-h-[calc(100vh-152px)] overflow-y-auto'> 
+                                {filterUsers.map(userObject=> <UserCard userObject={userObject} key={userObject.id}/>)}
+                            </div>
+                        </div>
                 }
-                
-                
             </div>
         )
     }
