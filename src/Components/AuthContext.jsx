@@ -2,8 +2,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect } from 'react'
 import { useContext } from 'react'
 import { useState } from 'react';
-import { auth, db } from '../../firebase.config';
+import { auth, db, storage } from '../../firebase.config';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 
 const AuthContext=React.createContext();
@@ -84,8 +85,40 @@ function AuthWrapper({children}) {
       })
     }
 
+    const updatePhoto=async(img)=>{
+      const storageRef=ref(storage, `profile/${userData.id}`)
+      const uploadTask=uploadBytesResumable(storageRef, img)
+
+      uploadTask.on(
+        "state_changed",
+        ()=>{
+          setIsUploading(true)
+          setError(null)
+          console.log("upload started")
+        },
+        ()=>{
+          setError("Unable to Upload")
+          setIsUploading(false)
+          alert("Unable to upload")
+        },
+        ()=>{
+          getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL)=>{
+            await updateDoc(doc(db, 'users', userData.id),{
+              profile:downloadURL
+            })
+            setUserData({
+              ...userData,
+              profile: downloadURL
+            });
+            setIsUploading(false);
+            setError(null);
+          })
+        }
+      )
+    }
+
   return (
-    <AuthContext.Provider value={{setUserData,userData,setIsLoggedIn,isLoggedIn, loading, updateName, updateStatus}}>
+    <AuthContext.Provider value={{setUserData,userData,setIsLoggedIn,isLoggedIn, loading, updateName, updateStatus, updatePhoto, isUploading, error  }}>
       {children}
     </AuthContext.Provider>
   )
