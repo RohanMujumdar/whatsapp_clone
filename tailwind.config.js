@@ -8,7 +8,7 @@ export default {
     extend: {
       colors:{
         primary:"#11d1a7",
-        primaryDense:"#0a9d87",
+        "primary-dense":"#0a9d87",
         backGround:"#eff2f5",
         "chat-bg":"#F2EFE9",
         "primary-light":"#D9FDD2"

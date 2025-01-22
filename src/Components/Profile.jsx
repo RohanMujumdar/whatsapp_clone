@@ -16,6 +16,7 @@ function Profile(props) {
       await signOut(auth)
       navigate("/login")
   }
+  
   return (
     <div className='bg-background w-[30vw]'>
        <div className='bg-[#10c8a0] text-white py-4 text-lg px-4 flex items-center gap-6'>
@@ -64,7 +65,7 @@ function Profile(props) {
                     setName(e.target.value)
                   }}
                 />
-                <button onClick={()=>updateName(status)}>
+                <button onClick={()=>updateName(name)}>
                   <CheckIcon className='w-5 h-5'/>
                 </button>
               </div>
@@ -74,7 +75,7 @@ function Profile(props) {
               <label className='text-sm text-primary mb-2'>Your Status</label>
               <div className='flex items-center w-full'>
                 <input
-                  value={status}
+                  value={status || ""}
                   className='w-full bg-transparent'
                   placeholder='Update your status'
                   onChange={(e)=>{
@@ -89,8 +90,6 @@ function Profile(props) {
 
             <button onClick={handleLogout} className='text-white px-4 py-3 rounded bg-primary'>Logout</button>
         </div>
-
-        
     </div>
   )
 }

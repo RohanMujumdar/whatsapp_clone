@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth ,db} from "../../firebase.config";
 import {doc,setDoc} from "firebase/firestore"
-import { useAuth } from "./AuthContext";
+
 
 async function createUser(authData)
 {

@@ -20,12 +20,13 @@ function AuthWrapper({children}) {
     const [loading, setLoading]=useState(true)
     const [isUploading, setIsUploading]=useState(false)
     const [error, setError]=useState("")
-    useEffect(()=>{
 
+
+    useEffect(()=>{
       //Checking if we have logged in before
       //Importance of onAuth: any change, it will directly be affected in firebase
 
-      // The image problem, image not visible sometimes. Because it is too costly for firbase, hence we must unsubscribe onAuthStateChanged first
+      // The image problem, image not visible sometimes. Because it is too costly for firebase, hence we must unsubscribe onAuthStateChanged first
       const unsubscribe=onAuthStateChanged(auth, async(currentUser)=>{
         setLoading(true)
         if(currentUser){

@@ -1,24 +1,10 @@
-import { signOut } from 'firebase/auth'
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { auth } from '../../firebase.config'
-import { storage } from '../../firebase.config'
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
+import React, { useEffect } from 'react'
 import ChatPanel from './ChatPanel'
-import { useAuth } from './AuthContext'
-
 import ChatWindow from './ChatWindow'
+import { useNavigate } from 'react-router-dom'
 
 function Home() {
-    const { setIsLoggedIn }=useAuth()
-    const navigate=useNavigate()
-    const handleLogout=async ()=>{
-
-        await signOut(auth);
-        setIsLoggedIn(false);
-        navigate("/login")
-    }
-
+   
     console.log("change event")
 
 
@@ -53,6 +39,8 @@ function Home() {
     //   }
 
     // }
+
+    
     return (
       <main className='relative w-full h-screen bg-[#E3E1DB] '>
 
