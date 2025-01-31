@@ -32,34 +32,62 @@ function ChatPanel() {
       setLoading(false);
     };
 
-    // Fetch last message for each user
-  const fetchLastMessages = () => {
-    users.forEach(user => {
-      const chatRef = doc(db, 'user-chats', user.id); // Assuming 'user-chats' is the collection
-      onSnapshot(chatRef, (snapshot) => {
+    getUsers();
+  }, []);
+
+
+
+   // Fetch last messages for each chat
+   useEffect(() => {
+    if (users.length === 0 || !userData.id) return;
+  
+    const unsubscribers = users.map((user) => {
+      const chatId = userData?.id > user.id 
+        ? `${userData.id}-${user.id}` 
+        : `${user.id}-${userData?.id}`;
+  
+      const chatRef = doc(db, 'user-chats', chatId);
+  
+      return onSnapshot(chatRef, (snapshot) => {
         const messages = snapshot.data()?.messages || [];
+  
         if (messages.length > 0) {
-          const lastMessage = messages[messages.length - 1]; // Get the last message
-          setLastMessages(prevMessages => ({
-            ...prevMessages,
-            [user.id]: {
-              text: lastMessage.text,
-              time: lastMessage.time,
-            },
-          }));
+          const lastMessage = messages[messages.length - 1];
+          
+          // Only show if the message was sent by someone else and the chat is NOT open
+          if (lastMessage.sender !== userData.id) {
+            let messageText = lastMessage.text; // Default to text message
+  
+            if (lastMessage.fileType) {
+              if (lastMessage.fileType === "application" && lastMessage.fileName) {
+                // Extract file extension from fileName
+                const extension = lastMessage.fileName.split('.').pop()?.toUpperCase();
+                messageText = extension ? `${extension} File` : "Application File";
+              } else {
+                // Capitalize other file types (Image, Audio, Video)
+                messageText = lastMessage.fileType.charAt(0).toUpperCase() + lastMessage.fileType.slice(1);
+              }
+            }
+  
+            setLastMessages((prevMessages) => ({
+              ...prevMessages,
+              [user.id]: {
+                text: messageText,
+                time: lastMessage.time,
+              },
+            }));
+          }
+          else{
+            setLastMessages("")
+          }
         }
       });
     });
-  };
-
-    getUsers();
-    fetchLastMessages();
+  
+    // Cleanup Firestore listeners on unmount
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, [users]);
-
-
   
-  
-
 
   // Handle user deletion in ChatPanel
   const handleDeleteUser = (userId) => {

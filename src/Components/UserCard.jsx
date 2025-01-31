@@ -1,17 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { EllipsisVertical } from 'lucide-react'; // Three dots icon
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase.config';
+import { useAuth } from './AuthContext';
 
 function UserCard(props) {
+
+  // const [lastMessage, setLastMessage]=useState(null)
+
+
+  // const [isMessageSeen, setIsMessageSeen] = useState(false); // Track if message is seen
+
   const userObject = props.userObject;
   const params = useParams();
   const isActive = params?.chatid === userObject.id;
-  const lastMessage=props.lastMessage
+  const lastMessage=props?.lastMessage?.text || ""
+  const time=props.lastMessage?.time || ""
 
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -54,8 +63,8 @@ function UserCard(props) {
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
     return `${formattedHours}:${formattedMinutes} ${ampm}`;
   };
-  
 
+  
   return (
     <div className="relative mb-4">
       {/* User Card Link */}
@@ -68,8 +77,21 @@ function UserCard(props) {
           alt={userObject.userData.name}
           className='h-12 w-12 object-cover rounded-full'
         />
-        <h2 className="text-lg font-semibold">{userObject.userData.name}</h2>
+        <div className="flex flex-col w-full">
+          <h2 className="text-lg font-semibold">{userObject.userData.name}</h2>
+          <div className="flex justify-between items-center w-full">
+              {/* Only show last message and time if the current user is the receiver */}
 
+              {!isActive && (
+                <>
+                  <p className="text-sm text-gray-500 truncate max-w-[200px]">{lastMessage}</p>
+                  <span className="text-xs text-gray-400 absolute right-8">{time}</span>
+                </>
+              )}
+              
+          </div>
+        </div>
+        
         
       </Link>
 
@@ -83,7 +105,7 @@ function UserCard(props) {
       >
         <EllipsisVertical className="text-gray-600" size={20} />
       </div>
-
+      
       {/* Dropdown Menu */}
       {showMenu && (
         <div ref={menuRef} className="absolute top-12 right-0 bg-white shadow-lg rounded-md p-2 w-40 z-10">

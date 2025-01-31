@@ -1,5 +1,5 @@
 import { arrayUnion, deleteDoc, doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
-import { Delete, DeleteIcon, EllipsisVertical, EllipsisVerticalIcon, MessageSquare, MessageSquareText, Mic, Mic2Icon, PhoneCall, PhoneCallIcon, PlusIcon, SendIcon, VideoIcon } from 'lucide-react'
+import { Delete, DeleteIcon, Download, EllipsisVertical, EllipsisVerticalIcon, MessageSquare, MessageSquareText, Mic, Mic2Icon, PhoneCall, PhoneCallIcon, PlusIcon, SendIcon, VideoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { unstable_HistoryRouter, useNavigate, useParams } from 'react-router-dom'
 import { db, storage } from '../../firebase.config'
@@ -321,7 +321,7 @@ function ChatWindow(){
                 >
 
                       {m?.fileType === 'image' ? (
-                        <img src={m.fileUrl} alt={m.fileName} className='w-full h-auto rounded' />
+                          <img src={m.fileUrl} alt={m.fileName} className='w-full h-auto rounded' />
                       ) : 
                       
                       m?.fileType === 'audio' ? (
