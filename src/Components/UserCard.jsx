@@ -3,24 +3,20 @@ import { Link, useParams } from 'react-router-dom';
 import { EllipsisVertical } from 'lucide-react'; // Three dots icon
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase.config';
-import { useAuth } from './AuthContext';
+
 
 function UserCard(props) {
-
-  // const [lastMessage, setLastMessage]=useState(null)
-
-
-  // const [isMessageSeen, setIsMessageSeen] = useState(false); // Track if message is seen
 
   const userObject = props.userObject;
   const params = useParams();
   const isActive = params?.chatid === userObject.id;
   const lastMessage=props?.lastMessage?.text || ""
+  const lastMessageSeen=props?.lastMessage?.seen
   const time=props.lastMessage?.time || ""
-
+  
   const [showMenu, setShowMenu] = useState(false);
+  
   const menuRef = useRef(null);
-
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -53,18 +49,7 @@ function UserCard(props) {
     }
   };
 
-  // Function to format the timestamp into a readable format
-  const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = hours % 12 || 12;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    return `${formattedHours}:${formattedMinutes} ${ampm}`;
-  };
-
-  
+ 
   return (
     <div className="relative mb-4">
       {/* User Card Link */}
@@ -82,7 +67,7 @@ function UserCard(props) {
           <div className="flex justify-between items-center w-full">
               {/* Only show last message and time if the current user is the receiver */}
 
-              {!isActive && (
+              {!isActive && !lastMessageSeen &&(
                 <>
                   <p className="text-sm text-gray-500 truncate max-w-[200px]">{lastMessage}</p>
                   <span className="text-xs text-gray-400 absolute right-8">{time}</span>
@@ -91,8 +76,6 @@ function UserCard(props) {
               
           </div>
         </div>
-        
-        
       </Link>
 
       {/* Three dots menu */}

@@ -1,7 +1,7 @@
 import { arrayUnion, deleteDoc, doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
 import { Delete, DeleteIcon, Download, EllipsisVertical, EllipsisVerticalIcon, MessageSquare, MessageSquareText, Mic, Mic2Icon, PhoneCall, PhoneCallIcon, PlusIcon, SendIcon, VideoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { unstable_HistoryRouter, useNavigate, useParams } from 'react-router-dom'
+import {  useNavigate, useParams } from 'react-router-dom'
 import { db, storage } from '../../firebase.config'
 import { useAuth } from './AuthContext'
 import { useRef } from 'react'
@@ -19,6 +19,7 @@ function ChatWindow(){
 
  
   const receiverId=params?.chatid
+  
 
   const chatId=userData?.id>receiverId?
       `${userData.id}-${receiverId}`
@@ -57,28 +58,6 @@ function ChatWindow(){
     }, [msgList]); // Trigger when msgList changes
 
 
-    const handleDeleteMessage = async (messageIndex) => {
-      try {
-        const chatDocRef = doc(db, 'user-chats', chatId);
-        const chatDocSnap = await getDoc(chatDocRef);
-    
-        if (chatDocSnap.exists()) {
-          const chatData = chatDocSnap.data();
-          const updatedMessages = chatData.messages.filter((_, index) => index !== messageIndex);
-    
-          await updateDoc(chatDocRef, {
-            messages: updatedMessages,
-          });
-    
-          console.log('Message deleted successfully');
-        } else {
-          console.error('Chat not found');
-        }
-      } catch (error) {
-        console.error('Error deleting message:', error);
-      }
-    };
-
     const handleDeleteChat = async() => {
       try {
         const chatDocRef = doc(db, 'user-chats', chatId);
@@ -88,15 +67,16 @@ function ChatWindow(){
         if (!chatSnapshot.exists()) {
           console.log("Chat does not exist");
           setShowMenu(false);
+          
           return;
         }
     
         // Delete the document
         await deleteDoc(chatDocRef);
-        console.log("Chat successfully deleted");
-    
-        // Close the menu
         setShowMenu(false);
+        navigate("/")
+
+        console.log("Chat successfully deleted");
       } catch (error) {
         console.error("Error deleting chat:", error);
       }
@@ -146,6 +126,7 @@ function ChatWindow(){
           fileType,
           fileUrl,
           fileName,
+          seen: false
         };
     
         await updateDoc(doc(db, 'user-chats', chatId), {
@@ -173,29 +154,25 @@ function ChatWindow(){
       hour12:true,
     })
 
+    const newMessage = {
+      text: input,
+      time: timeStamp,
+      sender: userData.id,
+      receiver: receiverId,
+      seen: false,  // Initially false
+    };
+
     if(msgList?.length===0)
     {
       await setDoc(doc(db, 'user-chats', chatId),{
         chatId: chatId,
-        messages:[
-          {
-            text: input,
-            time: timeStamp,
-            sender: userData.id,
-            receiver: receiverId
-          }
-        ]
+        messages: [newMessage]
       })
     }
     else{
         await updateDoc(doc(db, 'user-chats', chatId),{
           chatId: chatId,
-          messages: arrayUnion({
-            text: input,
-            time: timeStamp,
-            sender: userData.id,
-            receiver: receiverId
-          })
+          messages: arrayUnion(newMessage),
         })
       }      
     setInput("")
@@ -217,15 +194,76 @@ function ChatWindow(){
         }
     }
     fetchUserDetails()
-    const msgUnsubscribe=onSnapshot(doc(db,'user-chats',chatId),(doc)=>{
-      setMsgList(doc.data()?.messages || [])
-    })
+  //   const msgUnsubscribe=onSnapshot(doc(db,'user-chats',chatId),(doc)=>{
+  //     setMsgList(doc.data()?.messages || [])
+  //   })
 
-    return ()=>{
-      msgUnsubscribe()
+  //   return ()=>{
+  //     msgUnsubscribe()
+  //   }
+
+  // }, [receiverId])
+  const msgUnsubscribe = onSnapshot(doc(db, 'user-chats', chatId), async (docSnapshot) => {
+    if (docSnapshot.exists()) {
+      const chatData = docSnapshot.data();
+      const updatedMessages = chatData.messages.map((msg) =>
+        msg.receiver === userData.id && !msg.seen ? { ...msg, seen: true } : msg
+      );
+
+      setMsgList(updatedMessages);
+
+      // Update Firestore only if there's a change in "seen" status
+      if (JSON.stringify(updatedMessages) !== JSON.stringify(chatData.messages)) {
+        await updateDoc(doc(db, 'user-chats', chatId), {
+          messages: updatedMessages
+        });
+      }
     }
+  });
 
-  }, [receiverId])
+  return () => {
+    msgUnsubscribe();
+  };
+}, [receiverId, chatId]);
+
+
+const downloadImage = async (url, filename) => {
+  try {
+    const response = await fetch(url, { mode: 'no-cors' }); // Prevent CORS issues
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename || 'downloaded-image.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error('Error downloading image:', error);
+  }
+};
+
+  useEffect(() => {
+    const markMessagesAsSeen = async () => {
+      const chatDocRef = doc(db, 'user-chats', chatId);
+      const chatSnapshot = await getDoc(chatDocRef);
+
+      if (chatSnapshot.exists()) {
+        const chatData = chatSnapshot.data();
+        const updatedMessages = chatData.messages.map((msg) =>
+          msg.receiver === userData.id && !msg.seen ? { ...msg, seen: true } : msg
+        );
+
+        await updateDoc(chatDocRef, { messages: updatedMessages });
+      }
+    };
+
+    if (receiverId) {
+      markMessagesAsSeen();
+    }
+  }, [receiverId]);  // Runs when chat opens
 
 
   if(!receiverId)
@@ -284,32 +322,7 @@ function ChatWindow(){
             </div>
           )}
         </div>
-
-        {/* <div className='ml-auto flex justify-center items-center gap-3 cursor-pointer'>
-          <PhoneCallIcon />
-          <VideoIcon />
-          <EllipsisVertical/>
-        </div> */}
       </div>
-
-      {/* Message box */}
-      {/* <div className='flex grow flex flex-col gap-12 bg-chat-bg'>
-        {msgList?.map((m,index)=>{
-          return(
-          <div
-            key={index}
-            data-sender={m.sender === userData.id}
-            className='bg-white w-fit rounded-md p-2 shadow-sm max-w-[400px] break-words data-[sender=true]:ml-auto data-[sender=true]:bg-primary-light'
-        >
-          <p>{m?.text}</p>
-          <p className='text-xs text-neutral-500 text-end'>
-            {m?.time}
-          </p>
-          </div>
-          )
-          })}
-
-      </div> */}
 
       <div className='flex grow flex-col gap-12 bg-chat-bg px-4 py-2 overflow-y-scroll'>
             {msgList?.map((m, index) => {
@@ -321,7 +334,26 @@ function ChatWindow(){
                 >
 
                       {m?.fileType === 'image' ? (
-                          <img src={m.fileUrl} alt={m.fileName} className='w-full h-auto rounded' />
+                          // <img src={m.fileUrl} alt={m.fileName} className='w-full h-auto rounded' />
+
+                          <div className="relative group">
+                          {/* Image with hover darkening effect */}
+                          <img
+                            src={m.fileUrl}
+                            alt={m.fileName}
+                            className="w-full h-auto rounded transition duration-300 group-hover:brightness-75"
+                          />
+
+                          {/* Download Button (Centered and larger on hover) */}
+                          <button
+                            onClick={() => downloadImage(m.fileUrl, m.fileName)}
+                            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          >
+                            <div className="bg-gray-800 bg-opacity-60 p-3 rounded-full">
+                              <Download className="w-8 h-8 text-white" />
+                            </div>
+                          </button>
+                        </div>
                       ) : 
                       
                       m?.fileType === 'audio' ? (
@@ -353,18 +385,6 @@ function ChatWindow(){
                   <p className='text-xs text-neutral-500 text-end'>
                     {m?.time}
                   </p>
-
-                   {/* Delete Icon
-                    {m.sender === userData.id && (
-                      <button
-                          onClick={() => handleDeleteMessage(index)}
-                          className=" cursor-pointer absolute top-2 right-2 text-red-600 bg-white rounded-full p-1 shadow hover:bg-red-100"
-                          title="Delete Message"
-                        >
-                      🗑️
-                      <DeleteIcon/>
-                    </button>
-                    )} */}
                 </div>
               );
             })}
@@ -402,7 +422,6 @@ function ChatWindow(){
 
           <div className='ml-auto flex justify-center items-center gap-2 cursor-pointer'>
             <SendIcon onClick={handleMessage}/>
-
           </div>
         </div>
       </div>

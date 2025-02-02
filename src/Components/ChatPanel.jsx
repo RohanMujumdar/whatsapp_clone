@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../firebase.config';
 import { collection, doc, getDocs, onSnapshot } from 'firebase/firestore';
-import { ArrowLeft, CircleFadingPlusIcon, Loader2Icon, MessageSquare, SearchIcon, UserRoundIcon } from 'lucide-react';
+import { CircleFadingPlusIcon, Loader2Icon, MessageSquare, SearchIcon, UserRoundIcon } from 'lucide-react';
 import Profile from './Profile';
 import UserCard from './UserCard';
 import { useAuth } from './AuthContext';
@@ -34,7 +34,6 @@ function ChatPanel() {
 
     getUsers();
   }, []);
-
 
 
    // Fetch last messages for each chat
@@ -74,6 +73,7 @@ function ChatPanel() {
               [user.id]: {
                 text: messageText,
                 time: lastMessage.time,
+                seen: lastMessage.seen ,
               },
             }));
           }
@@ -95,6 +95,7 @@ function ChatPanel() {
     setUsers(users.filter(user => user.id !== userId));
   };
 
+  
   if (isLoading) {
     return (
       <div>....Loading</div>
