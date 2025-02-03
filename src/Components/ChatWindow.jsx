@@ -59,6 +59,11 @@ function ChatWindow(){
 
 
     const handleDeleteChat = async() => {
+
+      if (!chatId) {
+        console.error("Chat ID is undefined");
+        return;
+      }
       try {
         const chatDocRef = doc(db, 'user-chats', chatId);
         const chatSnapshot = await getDoc(chatDocRef);
@@ -67,14 +72,14 @@ function ChatWindow(){
         if (!chatSnapshot.exists()) {
           console.log("Chat does not exist");
           setShowMenu(false);
-          
-          return;
+          return
         }
     
         // Delete the document
         await deleteDoc(chatDocRef);
         setShowMenu(false);
-        navigate("/")
+        // Delay navigation slightly to ensure deletion completes
+        setTimeout(() => navigate("/"), 200);
 
         console.log("Chat successfully deleted");
       } catch (error) {
@@ -194,37 +199,50 @@ function ChatWindow(){
         }
     }
     fetchUserDetails()
-  //   const msgUnsubscribe=onSnapshot(doc(db,'user-chats',chatId),(doc)=>{
-  //     setMsgList(doc.data()?.messages || [])
-  //   })
+    const msgUnsubscribe=onSnapshot(doc(db,'user-chats',chatId),(doc)=>{
+      setMsgList(doc.data()?.messages || [])
+    })
 
-  //   return ()=>{
-  //     msgUnsubscribe()
-  //   }
-
-  // }, [receiverId])
-  const msgUnsubscribe = onSnapshot(doc(db, 'user-chats', chatId), async (docSnapshot) => {
-    if (docSnapshot.exists()) {
-      const chatData = docSnapshot.data();
-      const updatedMessages = chatData.messages.map((msg) =>
-        msg.receiver === userData.id && !msg.seen ? { ...msg, seen: true } : msg
-      );
-
-      setMsgList(updatedMessages);
-
-      // Update Firestore only if there's a change in "seen" status
-      if (JSON.stringify(updatedMessages) !== JSON.stringify(chatData.messages)) {
-        await updateDoc(doc(db, 'user-chats', chatId), {
-          messages: updatedMessages
-        });
-      }
+    return ()=>{
+      msgUnsubscribe()
     }
-  });
 
-  return () => {
-    msgUnsubscribe();
-  };
-}, [receiverId, chatId]);
+  }, [receiverId])
+
+  useEffect(()=>{
+    if (!chatId) return;
+
+    let isSubscribed = true;
+    console.log("Subscribing to chat:", chatId);
+  
+    const unsubscribe = onSnapshot(doc(db, 'user-chats', chatId), async (docSnapshot) => {
+      if (!isSubscribed) return;
+  
+      if (docSnapshot.exists()) {
+        const chatData = docSnapshot.data();
+        const updatedMessages = chatData.messages.map((msg) =>
+          msg.receiver === userData.id && !msg.seen ? { ...msg, seen: true } : msg
+        );
+  
+        setMsgList(updatedMessages);
+  
+        if (JSON.stringify(updatedMessages) !== JSON.stringify(chatData.messages)) {
+          try {
+            await updateDoc(doc(db, 'user-chats', chatId), { messages: updatedMessages });
+            console.log("Updated seen status in Firestore for chatId:", chatId);
+          } catch (error) {
+            console.error("Error updating messages:", error);
+          }
+        }
+      }
+    });
+  
+    return () => {
+      console.log("Unsubscribing from chat:", chatId);
+      isSubscribed = false;
+      unsubscribe();
+    };
+  }, [chatId])
 
 
 const downloadImage = async (url, filename) => {
